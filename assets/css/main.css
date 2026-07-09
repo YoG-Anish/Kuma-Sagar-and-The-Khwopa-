@@ -263,7 +263,7 @@ section:not(.white-background) .main-title h2{
 	padding: 30px 0;
 	color: var(--white-color);
 	z-index: 994;
-	/* 	background-color: var(--primary-color); */
+	background-color: var(--primary-color); 
 	display: flex;
 	justify-content: flex-start;
 }
