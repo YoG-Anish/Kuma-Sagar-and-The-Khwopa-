@@ -70,13 +70,15 @@ get_header(); ?>
             <div class="section-head">
                 <div class="main-title">
                     <?php
-                    $images = get_field('images', 'option');
-                    $initial_count = 8;
+                    $all_images = get_field('images', 'option');
+                    $initial_count = 10;
+                    $images = $all_images ? array_slice($all_images, 0, $initial_count) : array();
+                    $total_images = is_array($all_images) ? count($all_images) : 0;
                     ?>
                     <h2 class="title">Gallery</h2>
-                    <?php if ($images && count($images) > $initial_count) : ?>
+                    <?php if ($total_images > $initial_count) : ?>
                         <div class="btn-wrap">
-                            <button title="" class="border-btn galleryloadmore">
+                            <button title="" class="border-btn galleryloadmore loadmore-trigger" data-target="gallerycontainer" data-type="gallery">
                                 View All
                                 <span>
                                     <svg width="17" height="9" viewBox="0 0 17 9" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -91,10 +93,9 @@ get_header(); ?>
 
             <div class="feature-gallery column-grid" id="gallerycontainer">
                 <?php if ($images) :
-                    foreach ($images as $i => $image) :
-                        $hidden_class = ($i >= $initial_count) ? 'gallery-hidden' : '';
+                    foreach ($images as $image) :
                 ?>
-                        <div class="grid-item <?php echo esc_attr($hidden_class); ?>">
+                        <div class="grid-item">
                             <a href="<?php echo esc_url($image['url']); ?>" title="" data-caption="<?php echo esc_attr($image['caption']); ?>" data-fancybox="gallery">
                                 <img src="<?php echo esc_url($image['sizes']['large']); ?>" alt="<?php echo esc_attr($image['alt']); ?>">
                             </a>
@@ -107,9 +108,9 @@ get_header(); ?>
                 <?php endif; ?>
             </div>
 
-            <?php if ($images && count($images) > $initial_count) : ?>
+            <?php if ($total_images > $initial_count) : ?>
                 <div class="btn-wrap center">
-                    <div class="scrollgallerybtn galleryloadmore d-none primary-btn">
+                    <div class="scrollgallerybtn galleryloadmore loadmore-trigger d-none primary-btn" data-target="gallerycontainer" data-type="gallery">
                         <div class="more-btn">Load More</div>
                         <span class="icon">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
@@ -123,16 +124,8 @@ get_header(); ?>
         </div>
     </section>
 
-    <?php
-    $artists = new WP_Query(array(
-        'post_type'      => 'artist',
-        'posts_per_page' => -1,
-        'orderby'        => 'menu_order',
-        'order'          => 'ASC',
-    ));
-    ?>
 
-    <section class="artist-lists-section section-gaps min-100vh" id="artist">
+    <section id="artists" class="artist-lists-section section-gaps min-100vh" id="artist">
         <div class="container">
             <div class="artist-grid-wrapper">
 
@@ -143,6 +136,14 @@ get_header(); ?>
                 </div>
 
                 <div class="artists-lists">
+                    <?php
+                    $artists = new WP_Query(array(
+                        'post_type'      => 'artist',
+                        'posts_per_page' => -1,
+                        'orderby'        => 'menu_order',
+                        'order'          => 'ASC',
+                    ));
+                    ?>
                     <?php
                     $i = 0;
                     if ($artists->have_posts()) :
@@ -161,19 +162,18 @@ get_header(); ?>
                                         </div>
                                         <div class="artist-info">
                                             <h3><?php echo esc_html($role); ?></h3>
-                                            <p><?php echo wp_kses_post($bio); ?></p>
-
+                                            <?php echo wp_kses_post(wp_trim_words($bio, 50, '...')); ?>
                                             <?php if ($socials) : ?>
                                                 <ul class="artist-social">
                                                     <?php foreach ($socials as $social) : ?>
                                                         <li>
                                                             <?php if (! empty($social['url'])) : ?>
                                                                 <a href="<?php echo esc_url($social['url']); ?>" target="_blank">
-                                                                    <span class="icon"><i class="fa-classic fa-brands fa-<?php echo esc_attr($social['choose_platform']); ?>" aria-hidden="true"></i></span>
+                                                                    <span class="icon"><?php echo wp_kses_post($social['icon']); ?></span>
                                                                     <?php echo esc_html($social['username']); ?>
                                                                 </a>
                                                             <?php else : ?>
-                                                                <span class="icon"><i class="fa-classic fa-brands fa-<?php echo esc_attr($social['choose_platform']); ?>" aria-hidden="true"></i></span>
+                                                                <span class="icon"><?php echo wp_kses_post($social['icon']); ?></span>
                                                                 <?php echo esc_html($social['username']); ?>
                                                             <?php endif; ?>
                                                         </li>
@@ -199,76 +199,139 @@ get_header(); ?>
         </div>
     </section>
 
-    <?php
-$events = new WP_Query( array(
-    'post_type'      => 'event',
-    'posts_per_page' => 4, // show first 4, rest via Load More
-    'orderby'        => 'meta_value',
-    'meta_key'       => 'event_date',
-    'order'          => 'DESC',
-) );
-?>
 
-<section class="event-section section-gaps min-100vh white-background" id="events">
-    <div class="container">
-        <div class="section-head">
-            <div class="main-title">
-                <h2 class="title">Events</h2>
-                <div class="btn-wrap">
-                    <button title="" class="border-btn loadmore">
-                        View All
-                        <span>
-                            <svg width="17" height="9" viewBox="0 0 17 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12.4937 8.79352L16.0418 5.2455C16.1594 5.12788 16.2255 4.96835 16.2255 4.802C16.2255 4.63566 16.1594 4.47612 16.0418 4.3585L12.4937 0.810483C12.4061 0.722494 12.2942 0.662519 12.1724 0.638162C12.0506 0.613804 11.9243 0.62616 11.8096 0.673664C11.6948 0.721169 11.5967 0.801681 11.5278 0.904995C11.4588 1.00831 11.4221 1.12977 11.4222 1.25398L11.4231 4.17489L0.142701 4.174L0.142702 5.42999L11.4231 5.42911L11.4222 8.35002C11.4221 8.47423 11.4588 8.59569 11.5278 8.69901C11.5967 8.80232 11.6948 8.88283 11.8096 8.93034C11.9243 8.97784 12.0506 8.9902 12.1724 8.96584C12.2942 8.94148 12.4061 8.88151 12.4937 8.79352Z" fill="currentColor"></path>
-                            </svg>
-                        </span>
+    <section id="events" class="event-section section-gaps min-100vh white-background" id="events">
+        <div class="container">
+            <div class="section-head">
+                <div class="main-title">
+                    <h2 class="title">Events</h2>
+                    <div class="btn-wrap">
+                        <button title="" class="border-btn loadmore loadmore-trigger" data-target="event-item-wrap" data-type="events">
+                            View All
+                            <span>
+                                <svg width="17" height="9" viewBox="0 0 17 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12.4937 8.79352L16.0418 5.2455C16.1594 5.12788 16.2255 4.96835 16.2255 4.802C16.2255 4.63566 16.1594 4.47612 16.0418 4.3585L12.4937 0.810483C12.4061 0.722494 12.2942 0.662519 12.1724 0.638162C12.0506 0.613804 11.9243 0.62616 11.8096 0.673664C11.6948 0.721169 11.5967 0.801681 11.5278 0.904995C11.4588 1.00831 11.4221 1.12977 11.4222 1.25398L11.4231 4.17489L0.142701 4.174L0.142702 5.42999L11.4231 5.42911L11.4222 8.35002C11.4221 8.47423 11.4588 8.59569 11.5278 8.69901C11.5967 8.80232 11.6948 8.88283 11.8096 8.93034C11.9243 8.97784 12.0506 8.9902 12.1724 8.96584C12.2942 8.94148 12.4061 8.88151 12.4937 8.79352Z" fill="currentColor"></path>
+                                </svg>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <?php
+            $events = new WP_Query(array(
+                'post_type'      => 'event',
+                'posts_per_page' => 4,
+
+            ));
+            ?>
+            <div class="event-lists">
+                <div class="event-item-wrap">
+                    <div class="row g-3">
+                        <?php if ($events->have_posts()) :
+                            while ($events->have_posts()) : $events->the_post();
+
+                                $bg_image   = get_the_post_thumbnail_url(get_the_ID(), 'large');
+                        ?>
+                                <div class="col-xl-3 col-lg-4 col-sm-6">
+                                    <div class="item no-overlay" style="background-image: url(<?php echo esc_url($bg_image); ?>);">
+                                        <!-- <div class="content">
+                                            <span class="date"></span>
+                                            <h3 class="title"></h3>
+                                            <p></p>
+                                        </div> -->
+                                    </div>
+                                </div>
+                            <?php
+                            endwhile;
+                            wp_reset_postdata();
+                        else :
+                            ?>
+                            <p>No events found.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-wrap center">
+                <div class="scroll-btn loadmore loadmore-trigger d-none primary-btn" data-target="event-item-wrap" data-type="events">
+                    <div class="more-btn">Load More</div>
+                    <span class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+                            <path d="M9.167,10a.834.834,0,0,1-.834-.833V2.845L1.423,9.756A.833.833,0,0,1,.244,8.578L7.155,1.667H.833A.834.834,0,0,1,.833,0H9.177a.83.83,0,0,1,.308.063h0a.824.824,0,0,1,.262.173h0l0,0,0,0h0l0,0,0,0,0,0h0a.848.848,0,0,1,.174.263h0A.83.83,0,0,1,10,.823h0V.833h0V9.167A.833.833,0,0,1,9.167,10Z" fill="currentColor"></path>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <?php
+    $videos = get_field('video_lists', 'option');
+    ?>
+
+    <?php
+    $videos = get_field('videos_list', 'option');
+    ?>
+
+    <section class="video-section section-gaps min-100vh" id="video-section">
+        <div class="container">
+            <div class="section-head">
+                <div class="main-title">
+                    <h2 class="title">Videos</h2>
+                </div>
+            </div>
+
+            <div class="video-slider splide" id="splide02" role="region" aria-roledescription="carousel">
+                <div class="splide__arrows custom-arrows splide__arrows--ltr">
+                    <button class="splide__arrow splide__arrow--prev custom-arrow-prev" aria-label="Previous slide" aria-controls="splide02-track">
+                        <svg width="30" height="26" viewBox="0 0 30 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M29.4125 13.6626L18.1625 24.9126C17.9848 25.0782 17.7497 25.1683 17.5068 25.164C17.264 25.1597 17.0322 25.0613 16.8605 24.8896C16.6887 24.7178 16.5903 24.4861 16.586 24.2432C16.5817 24.0003 16.6719 23.7653 16.8375 23.5876L26.4859 13.9376H1.25C1.00136 13.9376 0.762903 13.8388 0.587087 13.663C0.411272 13.4871 0.3125 13.2487 0.3125 13.0001C0.3125 12.7514 0.411272 12.513 0.587087 12.3371C0.762903 12.1613 1.00136 12.0626 1.25 12.0626H26.4859L16.8375 2.41255C16.6719 2.23483 16.5817 1.99978 16.586 1.7569C16.5903 1.51402 16.6887 1.28229 16.8605 1.11052C17.0322 0.938759 17.264 0.840369 17.5068 0.836084C17.7497 0.831798 17.9848 0.921952 18.1625 1.08755L29.4125 12.3376C29.5881 12.5133 29.6867 12.7516 29.6867 13.0001C29.6867 13.2485 29.5881 13.4868 29.4125 13.6626Z" fill="currentColor"></path>
+                        </svg>
+                    </button>
+                    <button class="splide__arrow splide__arrow--next custom-arrow-next" aria-label="Next slide" aria-controls="splide02-track">
+                        <svg width="30" height="26" viewBox="0 0 30 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M29.4125 13.6626L18.1625 24.9126C17.9848 25.0782 17.7497 25.1683 17.5068 25.164C17.264 25.1597 17.0322 25.0613 16.8605 24.8896C16.6887 24.7178 16.5903 24.4861 16.586 24.2432C16.5817 24.0003 16.6719 23.7653 16.8375 23.5876L26.4859 13.9376H1.25C1.00136 13.9376 0.762903 13.8388 0.587087 13.663C0.411272 13.4871 0.3125 13.2487 0.3125 13.0001C0.3125 12.7514 0.411272 12.513 0.587087 12.3371C0.762903 12.1613 1.00136 12.0626 1.25 12.0626H26.4859L16.8375 2.41255C16.6719 2.23483 16.5817 1.99978 16.586 1.7569C16.5903 1.51402 16.6887 1.28229 16.8605 1.11052C17.0322 0.938759 17.264 0.840369 17.5068 0.836084C17.7497 0.831798 17.9848 0.921952 18.1625 1.08755L29.4125 12.3376C29.5881 12.5133 29.6867 12.7516 29.6867 13.0001C29.6867 13.2485 29.5881 13.4868 29.4125 13.6626Z" fill="currentColor"></path>
+                        </svg>
                     </button>
                 </div>
-            </div>
-        </div>
 
-        <div class="event-lists">
-            <div class="event-item-wrap">
-                <div class="row g-3">
-                    <?php if ( $events->have_posts() ) :
-                        while ( $events->have_posts() ) : $events->the_post();
+                <div class="splide__track" id="splide02-track">
+                    <ul class="splide__list" id="splide02-list">
+                        <?php
+                        if ($videos) :
+                            $slide_num = 1;
+                            $total     = count($videos);
 
-                        $bg_image   = get_the_post_thumbnail_url( get_the_ID(), 'large' );
-                        $event_date = get_field( 'event_date' );
-                    ?>
-                        <div class="col-xl-3 col-lg-4 col-sm-6">
-                            <a href="<?php the_permalink(); ?>" class="item no-overlay" style="background-image: url(<?php echo esc_url( $bg_image ); ?>);">
-                                <div class="content">
-                                    <?php if ( $event_date ) : ?>
-                                        <span class="date"><?php echo esc_html( $event_date ); ?></span>
-                                    <?php endif; ?>
-                                    <h3 class="title"><?php the_title(); ?></h3>
-                                </div>
-                            </a>
-                        </div>
-                    <?php
-                        endwhile;
-                        wp_reset_postdata();
-                    else :
-                    ?>
-                        <p>No events found.</p>
-                    <?php endif; ?>
+                            foreach ($videos as $video) :
+                                $youtube_url = $video['youtube_url'] ?? '';
+                                $youtube_id  = get_youtube_id($youtube_url);
+                                if (! $youtube_id) continue;
+
+                                $title       = $video['video_title'] ?? '';
+                                $description = $video['video_description'] ?? '';
+                                $thumbnail   = "https://img.youtube.com/vi/{$youtube_id}/maxresdefault.jpg";
+                                $watch_url   = "https://www.youtube.com/watch?v={$youtube_id}";
+                                $embed_url   = "https://www.youtube.com/embed/{$youtube_id}?autoplay=1";
+                        ?>
+                                <li class="splide__slide" id="splide02-slide<?php echo esc_attr(str_pad($slide_num, 2, '0', STR_PAD_LEFT)); ?>" role="group" aria-roledescription="slide" aria-label="<?php echo esc_attr($slide_num . ' of ' . $total); ?>">
+                                    <div class="video-holder">
+                                        <a href="<?php echo esc_url($embed_url); ?>" title="<?php echo esc_attr($title); ?>" data-fancybox="video" data-type="iframe">
+                                            <img src="<?php echo esc_url($thumbnail); ?>" alt="<?php echo esc_attr($title); ?>">
+                                        </a>
+                                    </div>
+                                </li>
+                            <?php
+                                $slide_num++;
+                            endforeach;
+                        else :
+                            ?>
+                            <p>No videos added yet.</p>
+                        <?php endif; ?>
+                    </ul>
                 </div>
             </div>
         </div>
-
-        <div class="btn-wrap center">
-            <div class="scroll-btn loadmore d-none primary-btn">
-                <div class="more-btn">Load More</div>
-                <span class="icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
-                        <path d="M9.167,10a.834.834,0,0,1-.834-.833V2.845L1.423,9.756A.833.833,0,0,1,.244,8.578L7.155,1.667H.833A.834.834,0,0,1,.833,0H9.177a.83.83,0,0,1,.308.063h0a.824.824,0,0,1,.262.173h0l0,0,0,0h0l0,0,0,0,0,0h0a.848.848,0,0,1,.174.263h0A.83.83,0,0,1,10,.823h0V.833h0V9.167A.833.833,0,0,1,9.167,10Z" fill="currentColor"></path>
-                    </svg>
-                </span>
-            </div>
-        </div>
-    </div>
-</section>
+    </section>
 
 
 

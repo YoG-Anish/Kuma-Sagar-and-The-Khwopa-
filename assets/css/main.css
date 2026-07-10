@@ -2,12 +2,14 @@
 
 @font-face {
 	font-family: 'Acumin Pro';
-	src: url('/web/20251122110042im_/https://kumasagarandthekhwopa.com/wp-content/themes/kumasagar/assets/fonts/Acumin-RPro.woff') format('woff'),url('/web/20251122110042im_/https://kumasagarandthekhwopa.com/wp-content/themes/kumasagar/assets/fonts/Acumin-RPro.woff2') format('woff2');
+	src: url('../fonts/AcuminPro-Regular.woff') format('woff'),
+	     url('../fonts/AcuminPro-Regular.woff2') format('woff2');
 	font-weight: 400;
 }
 @font-face {
 	font-family: 'Acumin Pro Condesed';
-	src: url('/web/20251122110042im_/https://kumasagarandthekhwopa.com/wp-content/themes/kumasagar/assets/fonts/Acumin Pro Condensed.woff') format('woff'),url('/web/20251122110042im_/https://kumasagarandthekhwopa.com/wp-content/themes/kumasagar/assets/fonts/Acumin Pro Condensed.woff') format('woff2'); 
+	src: url('../fonts/AcuminProCond-Regular.woff') format('woff'),
+	     url('../fonts/AcuminProCond-Regular.woff2') format('woff2');
 	font-weight: 700;
 }
 

@@ -9,6 +9,36 @@ let frames = _____WB$wombat$assign$function_____("frames");
 let opener = _____WB$wombat$assign$function_____("opener");
 jQuery(function($){
 
+	function initFancybox() {
+		if (typeof $.fancybox !== 'undefined') {
+			// Group items by data-fancybox attribute
+			var groups = {};
+			$('a[data-fancybox]').each(function() {
+				var group = $(this).data('fancybox');
+				if (!groups[group]) {
+					groups[group] = [];
+				}
+				groups[group].push(this);
+			});
+			
+			// Initialize each group as a gallery
+			$.each(groups, function(group, items) {
+				$(items).fancybox({
+					loop: true,
+					protect: true,
+					caption: function(instance, item) {
+						return $(item.$content).data('caption') || '';
+					},
+					iframe: {
+						preload: false
+					}
+				});
+			});
+		}
+	}
+
+	initFancybox();
+
 	$('body').css('--100vh',$(window).height() + 'px');
 
 	// when the DOM is ready
