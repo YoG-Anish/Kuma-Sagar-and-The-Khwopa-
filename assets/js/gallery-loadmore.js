@@ -69,10 +69,10 @@ jQuery(function($){
 					$('.column-grid').append($data);
                     initFancybox();
                     // $('#gallerycontainer').append($data); 
-//                     $('.grid').append($data).isotope('appended', $data);
-// 					$gridbox.imagesLoaded().done(function() {
-// 						$gridbox.isotope('layout');
-// 					});
+                    // $('.grid').append($data).isotope('appended', $data);
+					// $gridbox.imagesLoaded().done(function() {
+					// 	$gridbox.isotope('layout');
+					// });
                     offset += 10;
                     loading = false;
                     $viewMoreButton.html('Load more');

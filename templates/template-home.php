@@ -27,17 +27,26 @@ get_header(); ?>
             <div class="banner-overlay-section">
                 <div class="container">
                     <div class="banner-content">
-                        <ul class="social-links">
-                            <li>
-                                <a href="https://web.archive.org/web/20251122105235/https://www.facebook.com/profile.php?id=61561428357021" target="_blank"><i class="fa-classic fa-brands fa-facebook-f" aria-hidden="true"></i></a>
-                            </li>
-                            <li>
-                                <a href="https://web.archive.org/web/20251122105235/https://www.instagram.com/kumasagar_/" target="_blank"><i class="fa-classic fa-brands fa-instagram" aria-hidden="true"></i></a>
-                            </li>
-                            <li>
-                                <a href="https://web.archive.org/web/20251122105235/https://www.youtube.com/channel/UCZj3qFWlTcNwfnEUHW57DQg" target="_blank"><i class="fa-classic fa-brands fa-youtube" aria-hidden="true"></i></a>
-                            </li>
-                        </ul>
+
+                        <?php
+                        $banner_socials = get_field('items');
+                        ?>
+
+                        <?php if ($banner_socials) : ?>
+                            <ul class="social-links">
+                                <?php foreach ($banner_socials as $social) :
+                                    $icon = $social['banner_social_icons'];
+                                    $url  = $social['url'];
+                                    if (empty($icon)) continue;
+                                ?>
+                                    <li>
+                                        <?php if (! empty($url)) : ?>
+                                            <a href="<?php echo esc_url($url); ?>" target="_blank"><?php echo wp_kses_post($icon); ?></a>
+                                        <?php endif; ?>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
                         <div class="scrolldown-btn">
                             <a href="https://web.archive.org/web/20251122105235/https://kumasagarandthekhwopa.com/#main">
                                 <span><svg width="20" height="140" viewBox="0 0 20 140" fill="none" xmlns="http://www.w3.org/2000/svg">
